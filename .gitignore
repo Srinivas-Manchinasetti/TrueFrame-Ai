@@ -1,0 +1,154 @@
+# ==============================================================================
+# TrueFrame AI — Root .gitignore
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Environment Variables, Secrets & Credentials
+# ------------------------------------------------------------------------------
+.env
+.env.*
+*.env
+# Ensure template examples are retained
+!.env.example
+!.env.sample
+
+# Private credentials, certificates & keys
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+credentials.json
+client_secret*.json
+service_account*.json
+token.json
+
+# ------------------------------------------------------------------------------
+# 2. Python Environments & Caches
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing & Type-checking Caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+*.coverage
+htmlcov/
+coverage/
+
+# Jupyter Notebook Caches
+.ipynb_checkpoints/
+
+# Python Packaging
+*.egg-info/
+.eggs/
+*.egg
+build/
+dist/
+
+# ------------------------------------------------------------------------------
+# 3. Node.js & Frontend Build Outputs
+# ------------------------------------------------------------------------------
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+dist/
+build/
+.vite/
+.cache/
+*.tsbuildinfo
+
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ------------------------------------------------------------------------------
+# 4. Machine Learning Weights, Checkpoints & Run Logs
+# ------------------------------------------------------------------------------
+# Model weight artifacts (can be downloaded or stored in external storage/releases)
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.ckpt
+*.bin
+*.h5
+*.pb
+*.tflite
+
+# Keep tracking placeholder files in models directory
+!**/models/.gitkeep
+
+# ML experiment tracking & training outputs
+runs/
+wandb/
+mlruns/
+checkpoints/
+checkpoints/
+
+# ------------------------------------------------------------------------------
+# 5. Local Runtime Data & Uploads
+# ------------------------------------------------------------------------------
+# Temporary media uploads from inference testing
+uploads/
+**/uploads/*
+!**/uploads/.gitkeep
+
+# Local user history storage generated at runtime
+trueframe-backend/data/history.json
+**/data/history*.json
+!**/data/.gitkeep
+
+# ------------------------------------------------------------------------------
+# 6. Temporary & Log Files
+# ------------------------------------------------------------------------------
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+*.orig
+*.rej
+
+# ------------------------------------------------------------------------------
+# 7. Operating System & Editor Metadata
+# ------------------------------------------------------------------------------
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# IDE / Code Editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
