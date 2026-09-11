@@ -1,149 +1,190 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ImageIcon, Video, Clock, CheckCircle2, Cpu, Activity, ArrowRight } from "lucide-react";
+import { ImageIcon, Video, Clock, ArrowRight } from "lucide-react";
+import InfiniteSpiral from "../components/InfiniteSpiral";
 
 const FEATURES = [
-  { icon: ImageIcon, title: "Image detection", body: "Frozen CLIP ViT-B/32 semantic vision backbone with calibrated dual-class classifier head." },
-  { icon: Video, title: "Video detection", body: "Temporal keyframe sampling with per-frame confidence timeline and flicker anomaly detection." },
-  { icon: Clock, title: "Upload history", body: "Persistent forensic audit trail backed by MongoDB with session resilience." },
+  {
+    icon: ImageIcon,
+    title: "Image detection",
+    body: "Frozen CLIP ViT-B/32 semantic vision backbone with calibrated dual-class classifier head.",
+    to: "/image",
+    action: "Check an image",
+  },
+  {
+    icon: Video,
+    title: "Video detection",
+    body: "Temporal keyframe sampling with per-frame confidence timeline and flicker anomaly detection.",
+    to: "/video",
+    action: "Check a video",
+  },
+  {
+    icon: Clock,
+    title: "Upload history",
+    body: "Persistent forensic audit trail backed by MongoDB with session resilience.",
+    to: "/history",
+    action: "View audit trail",
+  },
+];
+
+const SPIRAL_ITEMS = [
+  { id: "face-1", image: "/faces/real_01.jpg", alt: "Authentic subject 01", tag: "REAL", score: "99.2%" },
+  { id: "face-2", image: "/faces/synthetic_01.jpg", alt: "StyleGAN generative sample", tag: "SYNTHETIC", score: "97.8%" },
+  { id: "face-3", image: "/faces/real_02.jpg", alt: "Authentic subject 02", tag: "REAL", score: "98.5%" },
+  { id: "face-4", image: "/faces/synthetic_02.jpg", alt: "Stable Diffusion holdout", tag: "SYNTHETIC", score: "96.4%" },
+  { id: "face-5", image: "/faces/real_03.jpg", alt: "Authentic subject 03", tag: "REAL", score: "99.1%" },
+  { id: "face-6", image: "/faces/synthetic_03.jpg", alt: "Cross-generator synthesis", tag: "SYNTHETIC", score: "98.2%" },
+  { id: "face-7", image: "/faces/real_04.jpg", alt: "Authentic subject 04", tag: "REAL", score: "97.9%" },
+  { id: "face-8", image: "/faces/synthetic_04.jpg", alt: "Generative latent artifact", tag: "SYNTHETIC", score: "95.7%" },
 ];
 
 export default function Home() {
   const navigate = useNavigate();
-  const [health, setHealth] = useState(null);
-
-  useEffect(() => {
-    fetch("/api/health")
-      .then((r) => {
-        if (!r.ok) return null;
-        return r.json();
-      })
-      .then((data) => {
-        if (data && data.status === "ok") {
-          setHealth(data);
-        } else {
-          setHealth(null);
-        }
-      })
-      .catch(() => setHealth(null));
-  }, []);
 
   return (
-    <div className="container" style={{ padding: "72px 24px" }}>
-      <div style={{ maxWidth: 680 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-          <span
+    <div className="container" style={{ padding: "64px 24px 80px" }}>
+      {/* Hero Section: Two-Column Layout */}
+      <div className="hero-grid">
+        {/* Left Column: Headline, Subtext, CTAs (~52% width) */}
+        <div className="hero-left-col">
+          <h1
             style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: 11,
-              color: "var(--slate)",
-              textTransform: "uppercase",
-              letterSpacing: 1,
-              background: "rgba(0,0,0,0.04)",
-              padding: "4px 8px",
-              borderRadius: 4,
-              border: "1px solid var(--line)",
+              fontFamily: "var(--font-head)",
+              fontSize: "clamp(36px, 4.4vw, 52px)",
+              lineHeight: 1.12,
+              margin: "0 0 22px",
+              letterSpacing: -0.9,
+              color: "var(--ink)",
             }}
           >
-            CLIP ViT-B/32 · Cross-Generator Generalization
-          </span>
-          {health?.device && (
-            <span
+            Tell real faces from generated ones — in a photo or a video clip.
+          </h1>
+          <p
+            style={{
+              fontSize: 16.5,
+              color: "var(--slate)",
+              lineHeight: 1.65,
+              marginBottom: 36,
+              maxWidth: 540,
+            }}
+          >
+            Upload an image or video. TrueFrame samples visual latents and boundary frequencies across patterns learned from StyleGAN and diffusion generators, delivering calibrated probabilities and artifact explanations.
+          </p>
+          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+            <button
+              onClick={() => navigate("/image")}
               style={{
-                display: "inline-flex",
+                background: "var(--ink)",
+                color: "var(--bg)",
+                border: "none",
+                borderRadius: 6,
+                padding: "14px 26px",
+                fontSize: 14.5,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
                 alignItems: "center",
-                gap: 5,
-                fontSize: 11,
-                fontFamily: "var(--font-mono)",
-                color: "var(--real)",
-                background: "rgba(27, 122, 114, 0.08)",
-                padding: "3px 8px",
-                borderRadius: 12,
-                border: "1px solid rgba(27, 122, 114, 0.25)",
+                gap: 8,
+                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.4)",
+                transition: "transform 0.15s ease, box-shadow 0.15s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-1px)";
+                e.currentTarget.style.boxShadow = "0 6px 22px rgba(0, 0, 0, 0.6)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 4px 16px rgba(0, 0, 0, 0.4)";
               }}
             >
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--real)", display: "inline-block" }} />
-              Engine Online ({String(health.device).toUpperCase()})
-            </span>
-          )}
-          {health?.mongodb && (
-            <span
+              Check an image <ArrowRight size={16} />
+            </button>
+            <button
+              onClick={() => navigate("/video")}
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 5,
-                fontSize: 11,
-                fontFamily: "var(--font-mono)",
-                color: health.mongodb === "connected" ? "var(--real)" : "var(--slate)",
-                background: health.mongodb === "connected" ? "rgba(27, 122, 114, 0.08)" : "rgba(0,0,0,0.04)",
-                padding: "3px 8px",
-                borderRadius: 12,
-                border: health.mongodb === "connected" ? "1px solid rgba(27, 122, 114, 0.25)" : "1px solid var(--line)",
+                background: "rgba(255, 255, 255, 0.04)",
+                color: "var(--ink)",
+                border: "1px solid var(--line-strong)",
+                borderRadius: 6,
+                padding: "14px 26px",
+                fontSize: 14.5,
+                fontWeight: 500,
+                cursor: "pointer",
+                transition: "background 0.15s ease, border-color 0.15s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.04)";
+                e.currentTarget.style.borderColor = "var(--line-strong)";
               }}
             >
-              <span
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: health.mongodb === "connected" ? "var(--real)" : "#D97706",
-                  display: "inline-block",
-                }}
-              />
-              MongoDB: {health.mongodb === "connected" ? "Atlas Online" : "Local Store"}
-            </span>
-          )}
+              Check a video
+            </button>
+          </div>
         </div>
 
-        <h1 style={{ fontFamily: "var(--font-head)", fontSize: 48, lineHeight: 1.12, margin: "0 0 20px", letterSpacing: -0.8 }}>
-          Tell real faces from generated ones — in a photo or a video clip.
-        </h1>
-        <p style={{ fontSize: 16, color: "var(--slate)", lineHeight: 1.6, marginBottom: 32 }}>
-          Upload an image or video. TrueFrame samples visual latents and boundary frequencies across patterns learned from StyleGAN and diffusion generators, delivering calibrated probabilities and artifact explanations.
-        </p>
-        <div style={{ display: "flex", gap: 14 }}>
-          <button
-            onClick={() => navigate("/image")}
-            style={{
-              background: "var(--ink)",
-              color: "var(--panel)",
-              border: "none",
-              borderRadius: 6,
-              padding: "12px 22px",
-              fontSize: 14,
-              fontWeight: 500,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-            }}
-          >
-            Check an image <ArrowRight size={15} />
-          </button>
-          <button
-            onClick={() => navigate("/video")}
-            style={{
-              background: "transparent",
-              color: "var(--ink)",
-              border: "1px solid var(--ink)",
-              borderRadius: 6,
-              padding: "12px 22px",
-              fontSize: 14,
-              fontWeight: 500,
-              cursor: "pointer",
-            }}
-          >
-            Check a video
-          </button>
+        {/* Right Column: Infinite Spiral Component (~48% width) */}
+        <div className="hero-right-col" title="Interactive 3D Spiral — Hover to pause, drag to rotate">
+          <InfiniteSpiral
+            items={SPIRAL_ITEMS}
+            speed={0.45}
+            grayscale={1}
+            pauseOnHover={true}
+            direction="up"
+            radius={180}
+            cardWidth={130}
+            cardHeight={150}
+            verticalSpacing={68}
+            cardsPerTurn={7}
+            centerScale={1.16}
+            edgeFade={0.35}
+            edgeBlur={4}
+          />
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "var(--line)", marginTop: 72, border: "1px solid var(--line)", borderRadius: 8, overflow: "hidden" }}>
+      {/* Feature Cards: Separated Floating Cards with Hover Pop */}
+      <div className="features-grid">
         {FEATURES.map((f, i) => (
-          <div key={i} style={{ background: "var(--panel)", padding: 28 }}>
-            <f.icon size={20} color="var(--ink)" style={{ marginBottom: 14 }} />
-            <h3 style={{ fontSize: 16, fontWeight: 600, margin: "0 0 8px" }}>{f.title}</h3>
-            <p style={{ fontSize: 13.5, color: "var(--slate)", lineHeight: 1.55, margin: 0 }}>{f.body}</p>
+          <div
+            key={i}
+            className="feature-card"
+            onClick={() => navigate(f.to)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === "Enter") navigate(f.to); }}
+          >
+            <div className="feature-icon-wrap">
+              <f.icon size={22} />
+            </div>
+            <h3
+              style={{
+                fontSize: 18,
+                fontWeight: 600,
+                margin: "0 0 10px",
+                color: "var(--ink)",
+                letterSpacing: -0.3,
+              }}
+            >
+              {f.title}
+            </h3>
+            <p
+              style={{
+                fontSize: 14,
+                color: "var(--slate)",
+                lineHeight: 1.6,
+                margin: 0,
+              }}
+            >
+              {f.body}
+            </p>
+            <div className="feature-action">
+              <span>{f.action}</span>
+              <ArrowRight size={14} />
+            </div>
           </div>
         ))}
       </div>
