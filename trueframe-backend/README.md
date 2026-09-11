@@ -1,73 +1,68 @@
-# TrueFrame AI — Backend
+# TrueFrame AI — Backend Service
 
-FastAPI backend serving the trained CLIP + classifier head model for
-real-vs-AI-generated face detection.
+High-throughput, asynchronous FastAPI backend serving the deep learning inference engine for real vs. AI-generated face and video detection.
 
-## Setup
+---
 
-1. **Create a virtual environment (recommended):**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate   # on Windows: venv\Scripts\activate
-   ```
+## ⚡ Architecture & Components
 
-2. **Install dependencies:**
-   ```bash
-   pip install -r backend/requirements.txt
-   ```
+- **Inference Backbone**: OpenAI CLIP ViT-B/32 (frozen parameters for robust zero-shot generalized latent representations).
+- **Classifier Head**: Custom 2-stage MLP (`TrueFrameHead`) with LayerNorm, GELU, and Dropout layers mapping 512-dim normalized feature embeddings to binary real/fake classification.
+- **Video Inspection Pipeline**: OpenCV-driven keyframe extraction with uniform temporal stride, batch inference, and temporal anomaly aggregation.
+- **Authentication**: Clerk JWT validation via public JWKS key verification (asymmetric RSA/EdDSA).
+- **Database & Persistence**: MongoDB Atlas cluster support via `pymongo` with automatic graceful fallback to an in-memory thread-safe cache if offline or unconfigured.
 
-3. **Add your trained model:**
-   Download `v2_classifier_head.pt` from your Google Drive
-   (`TrueFrame/v2_classifier_head.pt`) and place it at:
-   ```
-   backend/models/v2_classifier_head.pt
-   ```
+---
 
-4. **Run the server:**
-   ```bash
-   uvicorn backend.main:app --reload
-   ```
-   The API will be available at `http://localhost:8000`.
+## 🚀 Setup & Execution
 
-5. **Test it:**
-   - Visit `http://localhost:8000/docs` for the interactive Swagger UI
-   - Or test directly with curl:
-     ```bash
-     curl -X POST "http://localhost:8000/api/predict/image" \
-       -F "file=@/path/to/some_face.jpg"
-     ```
-   - Expected response:
-     ```json
-     {
-       "verdict": "fake",
-       "confidence": 0.97,
-       "p_real": 0.03,
-       "p_fake": 0.97,
-       "filename": "some_face.jpg"
-     }
-     ```
-
-## Project structure
-
+### 1. Create a Virtual Environment
+```bash
+python -m venv venv
 ```
-backend/
-├── main.py              # FastAPI app entrypoint, CORS setup
-├── config.py             # paths and settings
-├── requirements.txt
-├── models/
-│   └── v2_classifier_head.pt   # <- you add this manually
-├── ml/
-│   ├── model_def.py       # TrueFrameHead architecture (must match training)
-│   ├── inference.py       # loads CLIP + head, runs predictions
-│   └── preprocess.py       # raw bytes -> PIL image
-└── routers/
-    └── predict.py         # POST /api/predict/image
+Activate on Windows:
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+Activate on Linux/macOS:
+```bash
+source venv/bin/activate
 ```
 
-## What's not in this version yet
+### 2. Install Dependencies
+```bash
+pip install -r backend/requirements.txt
+```
 
-- Google OAuth login
-- MongoDB history logging
-- Video detection endpoint
+### 3. Model Weights
+Place the trained classifier weights `v2_classifier_head.pt` in the models directory:
+```
+backend/models/v2_classifier_head.pt
+```
 
-These come next, once the image pipeline is confirmed working end-to-end.
+### 4. Environment Configuration
+Copy `.env.example` to `backend/.env`:
+```ini
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority&appName=TrueFrameAI
+MONGODB_DB_NAME=trueframe
+TRUEFRAME_DEVICE=cpu
+CLERK_SECRET_KEY=your_clerk_secret_key_here
+```
+
+### 5. Launch Server
+```bash
+uvicorn backend.main:app --reload --port 8000
+```
+- Interactive API Docs (Swagger): `http://localhost:8000/docs`
+- Redoc API Docs: `http://localhost:8000/redoc`
+
+---
+
+## 📡 Key Endpoints
+
+- `GET /health`: Returns engine hardware (`cpu`/`cuda`) and MongoDB connection health.
+- `POST /api/predict/image`: Multipart image upload evaluating generative synthesis artifacts.
+- `POST /api/predict/video`: Multipart video upload running keyframe sampling & temporal artifact evaluation.
+- `GET /api/history`: Returns audit history of inspections.
+- `DELETE /api/history`: Purges stored inspection logs.
+- `GET /api/auth/me`: Decodes and validates Clerk Bearer tokens.
